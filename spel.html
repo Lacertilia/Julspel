@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Spela</title>
+	<style>
+		body{
+			margin:0px;
+			padding:0px;
+		}
+		canvas{
+			border: 1px solid black;
+			margin-left:0px;
+			padding-left:0px;
+		}
+	</style>
+</head>
+<body>
+	<img id="bg-gfx" src="" alt="Background" hidden>
+	<img id="p0-gfx" src="PlayUp.png" alt="Player0" hidden>
+	<img id="p1-gfx" src="PlayRight.png" alt="Player1" hidden>
+	<img id="p2-gfx" src="PlayDown.png" alt="Player2" hidden>
+	<img id="p3-gfx" src="PlayLeft.png" alt="Player3" hidden>
+	<img id="ch-gfx" src="Chimney.png" alt="Chimney" hidden>
+	<img id="pk-gfx" src="Package.png" alt="Paket" hidden>
+	
+	<canvas id="game" width="1300" height="900"></canvas>
+	<script>
+		let canvas = document.getElementById("game");
+		let ctx = canvas.getContext("2d");
+		let imgX = 0;
+		let charX = 0;
+		let charY = 0;
+		let charDir = 2;
+		let move = 30;
+		let size = 50;
+		let movingUp = false;
+		let movingRight = false;
+		let movingDown = false;
+		let movingLeft = false;
+		let chSize = 50;
+		let chX = 0;
+		let chY = 0;
+		let packX = 50;
+		let packY = 50;
+		let packSize = 30;
+		let packPicked = false;
+		let score = 0;
+		//let chimSc = 0;
+		//let rnd;
+
+		newPackage();
+		//newChimney();
+
+		function draw(){
+
+			let bgImg = document.getElementById("bg-gfx");
+			let pImg = document.getElementById("p" + charDir + "-gfx");
+			let chImg = document.getElementById("ch-gfx");
+			let pkgImg = document.getElementById("pk-gfx");
+
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			ctx.font = "30px Arial";
+			//ctx.fillStyle = "black";
+			ctx.fillText("Score:" + score, 1150, 30);
+			ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+			ctx.drawImage(chImg, chX, chY, chSize, chSize);
+			//ctx.fillStyle = "white";
+			//ctx.fillText((5-chimSc), chX + 5, chY + 45);
+			if(!packPicked){	
+			ctx.drawImage(pkgImg, packX, packY, packSize, packSize);
+			}
+			ctx.drawImage(pImg, charX, charY, size, size);
+
+			//moving();
+
+			window.requestAnimationFrame(draw);
+		}
+
+		function moving(){
+			if(movingUp){
+				if(!collide(charX, charY, "w")){
+					charY -= move;
+				}
+			}
+			if(movingRight){
+				if(!collide(charX, charY, "d")){
+					charX += move;
+				}
+			}
+			if(movingDown){
+				if(!collide(charX, charY, "s")){
+					charY += move;
+				}
+			}
+			if(movingLeft){
+				if(!collide(charX, charY, "a")){
+					charX -= move;
+				}
+			}
+
+			if((charX >= packX && charX <= packX + packSize) || (charX + size - 1 >= packX && charX + size - 1 <= packX + packSize)){
+				if((charY >= packY && charY <= packY + packSize) || (charY + size - 1 >= packY && charY + size - 1 <= packY + packSize)){
+					packPicked = true;
+				}
+			}
+
+			if((charX >= chX && charX <= chX + chSize) || (charX + size - 1 >= chX && charX + size - 1 <= chX + chSize)){
+				if(((charY >= chY && charY <= chY + chSize) || (charY + size - 1 >= chY && charY + size - 1 <= chY + chSize)) && packPicked){
+					packPicked = false;
+					/*chimSc++;
+					if(chimSc >= 5){
+					//	newChimney();
+						chimSc = 0;
+					}*/
+					newPackage();
+					score++;
+				}
+			}
+		}
+
+		function newPackage(){
+			let isSet = false;
+			do{
+				rnd = Math.floor(Math.random()*(canvas.width-packSize));
+				if(rnd > chSize && rnd + packSize < chX){
+					isSet = true;
+					packX = rnd;
+				}
+			}while(!isSet);
+			isSet = false;
+			do{
+				rnd = Math.floor(Math.random()*(canvas.height-packSize));
+				if(rnd > chY + chSize && rnd + packSize < chY){
+					isSet = true;
+					packY = rnd;
+				}
+			}while(!isSet);
+
+		}
+
+		/*function newChimney(){
+			rnd = Math.floor(Math.random()*(canvas.width-chSize));
+			chX = rnd;
+			
+			rnd = Math.floor(Math.random()*(canvas.height-chSize));
+			chY = rnd;
+		}*/
+
+		document.addEventListener("keydown", function(e){
+			switch(e.key){
+				case "d":
+					movingUp = false;
+					movingRight = true;
+					movingDown = false;
+					movingLeft = false;
+					charDir = 1;
+					break;
+				case "s":
+					movingUp = false;
+					movingRight = false;
+					movingDown = true;
+					movingLeft = false;
+					charDir = 2;
+					break;
+				case "a":
+					movingUp = false;
+					movingRight = false;
+					movingDown = false;
+					movingLeft = true;
+					charDir = 3;
+					break;
+				case "w":
+					movingUp = true;
+					movingRight = false;
+					movingDown = false;
+					movingLeft = false;
+					charDir = 0;
+					break;
+				case "ArrowRight":
+					movingUp = false;
+					movingRight = true;
+					movingDown = false;
+					movingLeft = false;
+					charDir = 1;
+					break;
+				case "ArrowDown":
+					movingUp = false;
+					movingRight = false;
+					movingDown = true;
+					movingLeft = false;
+					charDir = 2;
+					break;
+				case "ArrowLeft":
+					movingUp = false;
+					movingRight = false;
+					movingDown = false;
+					movingLeft = true;
+					charDir = 3;
+					break;
+				case "ArrowUp":
+					movingUp = true;
+					movingRight = false;
+					movingDown = false;
+					movingLeft = false;
+					charDir = 0;
+					break;
+				case "b":
+					if(charDir == 0){
+						movingUp = true;
+					}else if(charDir == 1){
+						movingRight = true;
+					}else if(charDir == 2){
+						movingDown = true;
+					}else if(charDir == 3){
+						movingLeft = true;
+					}
+					break;
+				default:
+					break;
+			
+			
+			}
+		});
+
+		document.addEventListener("keyup", function(e){
+			switch(e.key){
+				case "d":
+					movingRight = false;
+					break;
+				case "s":
+					movingDown = false;
+					break;
+				case "a":
+					movingLeft = false;
+					break;
+				case "w":
+					movingUp = false;
+					break;
+				case "ArrowRight":
+					movingRight = false;
+					break;
+				case "ArrowDown":
+					movingDown = false;
+					break;
+				case "ArrowLeft":
+					movingLeft = false;
+					break;
+				case "ArrowUp":
+					movingUp = false;
+					break;
+				case "b":
+					if(charDir == 0){
+						movingUp = false;
+					}else if(charDir == 1){
+						movingRight = false;
+					}else if(charDir == 2){
+						movingDown = false;
+					}else if(charDir == 3){
+						movingLeft = false;
+					}
+					break;
+				default:
+					break;
+			}
+		});
+
+		function collide(xPos, yPos, key){
+			if(key == "ArrowUp" || key == "w"){
+				if(yPos - move < 0){
+					return true;
+				}else{
+					return false;
+				}
+			}else if(key == "ArrowLeft" || key == "a"){
+				if(xPos - move < 0){
+					return true;
+				}else{
+					return false;
+				}
+			}else if(key == "ArrowDown" || key == "s"){
+				if(yPos + move + size > canvas.height){
+					return true;
+				}else{
+					return false;
+				}
+			}else if(key == "ArrowRight" || key == "d"){
+				if(xPos + move + size >canvas.width){
+					return true;
+				}else{
+					return false;
+				}
+			}else if(key == "b"){
+				if(charDir == 0){
+					if(yPos + move + size > canvas.height){
+						return true;
+					}else{
+						return false;
+					}
+				}else if(charDir == 1){
+					if(xPos - move < 0){
+						return true;
+					}else{
+						return false;
+					}
+				}else if(charDir == 2){
+					if(yPos - move < 0){
+						return true;
+					}else{
+						return false;
+					}
+				}else if(charDir == 3){
+					if(xPos + move + size > canvas.width){
+						return true;
+					}else{
+						return false;
+					}
+				}
+			}else{
+				return false;
+			}
+		}
+
+		window.requestAnimationFrame(draw);
+	</script>
+</body>
+</html>
