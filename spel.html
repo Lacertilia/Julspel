@@ -16,7 +16,6 @@
 	</style>
 </head>
 <body>
-	<img id="bg-gfx" src="" alt="Background" hidden>
 	<img id="p0-gfx" src="PlayUp.png" alt="Player0" hidden>
 	<img id="p1-gfx" src="PlayRight.png" alt="Player1" hidden>
 	<img id="p2-gfx" src="PlayDown.png" alt="Player2" hidden>
@@ -32,7 +31,7 @@
 		let charX = 0;
 		let charY = 0;
 		let charDir = 2;
-		let move = 30;
+		let move = 10;
 		let size = 50;
 		let movingUp = false;
 		let movingRight = false;
@@ -46,11 +45,12 @@
 		let packSize = 30;
 		let packPicked = false;
 		let score = 0;
-		//let chimSc = 0;
-		//let rnd;
+		let chimSc = 0;
+		let yayAudio = new Audio('Yaay.mp3');
+		let whooAudio = new Audio('whoo.mp3');
 
 		newPackage();
-		//newChimney();
+		newChimney();
 
 		function draw(){
 
@@ -60,19 +60,22 @@
 			let pkgImg = document.getElementById("pk-gfx");
 
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			ctx.fillStyle = "blue";
 			ctx.font = "30px Arial";
-			//ctx.fillStyle = "black";
-			ctx.fillText("Score:" + score, 1150, 30);
-			ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+			ctx.fillRect(0, 0, canvas.width, canvas.height);
 			ctx.drawImage(chImg, chX, chY, chSize, chSize);
-			//ctx.fillStyle = "white";
-			//ctx.fillText((5-chimSc), chX + 5, chY + 45);
 			if(!packPicked){	
-			ctx.drawImage(pkgImg, packX, packY, packSize, packSize);
+				ctx.drawImage(pkgImg, packX, packY, packSize, packSize);
+			}else{
+				ctx.fillStyle = "white";
+				ctx.fillText("Du har paket", 0, canvas.height - 10);
 			}
 			ctx.drawImage(pImg, charX, charY, size, size);
+			ctx.fillStyle = "white";
+			ctx.fillText("Score:" + score, 1150, 30);
+			ctx.fillText((5-chimSc), chX + 5, chY + 45);
 
-			//moving();
+			moving();
 
 			window.requestAnimationFrame(draw);
 		}
@@ -108,112 +111,105 @@
 			if((charX >= chX && charX <= chX + chSize) || (charX + size - 1 >= chX && charX + size - 1 <= chX + chSize)){
 				if(((charY >= chY && charY <= chY + chSize) || (charY + size - 1 >= chY && charY + size - 1 <= chY + chSize)) && packPicked){
 					packPicked = false;
-					/*chimSc++;
+					chimSc++;
 					if(chimSc >= 5){
-					//	newChimney();
+						newChimney();
+						move += 1;
+						
 						chimSc = 0;
-					}*/
+
+						if(score%50 == 0){
+							whooAudio.play();
+						}else{
+							yayAudio.play();
+						}
+					}
 					newPackage();
 					score++;
 				}
 			}
+
 		}
 
 		function newPackage(){
-			let isSet = false;
-			do{
-				rnd = Math.floor(Math.random()*(canvas.width-packSize));
-				if(rnd > chSize && rnd + packSize < chX){
-					isSet = true;
-					packX = rnd;
-				}
-			}while(!isSet);
-			isSet = false;
-			do{
-				rnd = Math.floor(Math.random()*(canvas.height-packSize));
-				if(rnd > chY + chSize && rnd + packSize < chY){
-					isSet = true;
-					packY = rnd;
-				}
-			}while(!isSet);
+			let rnd;
+
+			rnd = Math.floor((Math.random()*(canvas.width-packSize)));
+			packX = rnd;				
+		
+			rnd = Math.floor(Math.random()*(canvas.height-packSize));
+			packY = rnd;
+			
 
 		}
 
-		/*function newChimney(){
+		function newChimney(){
+			let rnd;
 			rnd = Math.floor(Math.random()*(canvas.width-chSize));
 			chX = rnd;
 			
 			rnd = Math.floor(Math.random()*(canvas.height-chSize));
 			chY = rnd;
-		}*/
+		}
+
+		function stopMove(){
+			movingUp = false;
+			movingRight = false;
+			movingDown = false;
+			movingLeft = false;
+		}
 
 		document.addEventListener("keydown", function(e){
 			switch(e.key){
 				case "d":
-					movingUp = false;
+					stopMove();
 					movingRight = true;
-					movingDown = false;
-					movingLeft = false;
 					charDir = 1;
 					break;
 				case "s":
-					movingUp = false;
-					movingRight = false;
+					stopMove();
 					movingDown = true;
-					movingLeft = false;
 					charDir = 2;
 					break;
 				case "a":
-					movingUp = false;
-					movingRight = false;
-					movingDown = false;
+					stopMove();
 					movingLeft = true;
 					charDir = 3;
 					break;
 				case "w":
+					stopMove();
 					movingUp = true;
-					movingRight = false;
-					movingDown = false;
-					movingLeft = false;
 					charDir = 0;
 					break;
 				case "ArrowRight":
-					movingUp = false;
+					stopMove();
 					movingRight = true;
-					movingDown = false;
-					movingLeft = false;
 					charDir = 1;
 					break;
 				case "ArrowDown":
-					movingUp = false;
-					movingRight = false;
+					stopMove();
 					movingDown = true;
-					movingLeft = false;
 					charDir = 2;
 					break;
 				case "ArrowLeft":
-					movingUp = false;
-					movingRight = false;
-					movingDown = false;
+					stopMove();
 					movingLeft = true;
 					charDir = 3;
 					break;
 				case "ArrowUp":
+					stopMove();
 					movingUp = true;
-					movingRight = false;
-					movingDown = false;
-					movingLeft = false;
 					charDir = 0;
 					break;
 				case "b":
 					if(charDir == 0){
-						movingUp = true;
-					}else if(charDir == 1){
-						movingRight = true;
-					}else if(charDir == 2){
 						movingDown = true;
-					}else if(charDir == 3){
+					}else if(charDir == 1){
 						movingLeft = true;
+					}else if(charDir == 2){
+						movingUp = true;
+					}else if(charDir == 3){
+						movingRight = true;
 					}
 					break;
 				default:
@@ -251,13 +247,13 @@
 					break;
 				case "b":
 					if(charDir == 0){
-						movingUp = false;
-					}else if(charDir == 1){
-						movingRight = false;
-					}else if(charDir == 2){
 						movingDown = false;
-					}else if(charDir == 3){
+					}else if(charDir == 1){
 						movingLeft = false;
+					}else if(charDir == 2){
+						movingUp = false;
+					}else if(charDir == 3){
+						movingRight = false;
 					}
 					break;
 				default:
